@@ -37,13 +37,6 @@ let
       buildInputs = with nixpkgs; [
         scons
         libGLU
-        xorg.libX11
-        xorg.libXcursor
-        xorg.libXinerama
-        xorg.libXi
-        xorg.libXrandr
-        xorg.libXext
-        xorg.libXfixes
       ]
       ++ runtimeDependencies
       # Necessary to make godot see fontconfig.lib and dbus.lib
@@ -53,6 +46,13 @@ let
       runtimeDependencies = with nixpkgs; [
         vulkan-loader
         alsa-lib
+        xorg.libX11
+        xorg.libXcursor
+        xorg.libXinerama
+        xorg.libXi
+        xorg.libXrandr
+        xorg.libXext
+        xorg.libXfixes
       ]
       ++ l.optional withPulseaudio libpulseaudio
       ++ l.optional withDbus dbus.lib
@@ -60,11 +60,13 @@ let
       ++ l.optional withFontconfig fontconfig.lib
       ++ l.optional withUdev udev;
 
-      patches = [
-        # Godot expects to find xfixes inside xi, but nix's pkg-config only
-        # gives the libs for the requested package (ignoring the propagated-build-inputs)
-        ./xfixes.patch
-      ];
+
+      postPatch = ''
+        substituteInPlace ./platform/linuxbsd/detect.py \
+          --replace '        env.ParseConfig("pkg-config xi --cflags")' \
+                    '        env.ParseConfig("pkg-config xi --cflags")${"\n"}        env.ParseConfig("pkg-config xfixes --cflags")' \
+          --replace '--cflags"' '--cflags --libs"'
+      '';
 
       enableParallelBuilding = true;
 
