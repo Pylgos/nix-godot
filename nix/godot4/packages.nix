@@ -6,5 +6,5 @@ let
   inherit (cell.lib) buildGodot4;
 in
 {
-  godot4-master = buildGodot4 { source = inputs.godot4-master; };
+  godot-master = buildGodot4 { source = inputs.godot-master-source; };
 }

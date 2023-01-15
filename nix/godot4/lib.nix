@@ -23,7 +23,7 @@ let
         touch = withTouch; # Enable touch events
       };
     in
-    nixpkgs.mkDerivation {
+    nixpkgs.stdenv.mkDerivation rec {
       pname = "godot";
       version = parseVersion source;
       src = source;
@@ -37,13 +37,13 @@ let
       buildInputs = with nixpkgs; [
         scons
         libGLU
-        libX11
-        libXcursor
-        libXinerama
-        libXi
-        libXrandr
-        libXext
-        libXfixes
+        xorg.libX11
+        xorg.libXcursor
+        xorg.libXinerama
+        xorg.libXi
+        xorg.libXrandr
+        xorg.libXext
+        xorg.libXfixes
       ]
       ++ runtimeDependencies
       # Necessary to make godot see fontconfig.lib and dbus.lib
@@ -100,12 +100,12 @@ let
 
   parseVersion = source:
     let
-      s = l.readFile source + /version.py;
-      f = t: l.elemAt (l.match ''${t}[[:space:]]*=[[:space:]]*([^\n]+)'' s) 0;
+      s = l.readFile (source + /version.py);
+      f = t: l.elemAt (l.match ".+${t}[ ]*=[ ]*([^\n]+).+" s) 0;
       major = f "major";
       minor = f "minor";
       patch = f "patch";
-      status = f "status";
+      status = l.fromJSON (f "status");
     in
     "${major}.${minor}.${patch}-${status}";
 

@@ -4,7 +4,7 @@
     std.url = "github:divnix/std";
     std.inputs.nixpkgs.follows = "nixpkgs";
 
-    godot-master = { url = "github:godotengine/godot"; flake = false; };
+    godot-master-source = { url = "github:godotengine/godot"; flake = false; };
   };
 
   outputs = { std, self, ... } @ inputs: std.growOn
