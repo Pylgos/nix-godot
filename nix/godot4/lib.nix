@@ -1,21 +1,40 @@
-{ inputs, cell, nixpkgs }:
+{ inputs, cell }:
 
 let
+  nixpkgs = inputs.nixpkgs;
   l = nixpkgs.lib // builtins;
 
-  makeGodot4 = { source }:
+  buildGodot4 =
+    { source
+    , withPulseaudio ? false
+    , withDbus ? true
+    , withSpeechd ? false
+    , withFontconfig ? true
+    , withUdev ? true
+    , withTouch ? true
+    }:
+    let
+      options = {
+        pulseaudio = withPulseaudio;
+        dbus = withDbus; # Use D-Bus to handle screensaver and portal desktop settings
+        speechd = withSpeechd; # Use Speech Dispatcher for Text-to-Speech support
+        fontconfig = withFontconfig; # Use fontconfig for system fonts support
+        udev = withUdev; # Use udev for gamepad connection callbacks
+        touch = withTouch; # Enable touch events
+      };
+    in
     nixpkgs.mkDerivation {
       pname = "godot";
       version = parseVersion source;
       src = source;
 
-      nativeBuildInputs = [
+      nativeBuildInputs = with nixpkgs; [
         pkg-config
         autoPatchelfHook
         installShellFiles
       ];
 
-      buildInputs = [
+      buildInputs = with nixpkgs; [
         scons
         libGLU
         libX11
@@ -28,18 +47,18 @@ let
       ]
       ++ runtimeDependencies
       # Necessary to make godot see fontconfig.lib and dbus.lib
-      ++ lib.optional withFontconfig fontconfig
-      ++ lib.optional withDbus dbus;
+      ++ l.optional withFontconfig fontconfig
+      ++ l.optional withDbus dbus;
 
-      runtimeDependencies = [
+      runtimeDependencies = with nixpkgs; [
         vulkan-loader
         alsa-lib
       ]
-      ++ lib.optional withPulseaudio libpulseaudio
-      ++ lib.optional withDbus dbus.lib
-      ++ lib.optional withSpeechd speechd
-      ++ lib.optional withFontconfig fontconfig.lib
-      ++ lib.optional withUdev udev;
+      ++ l.optional withPulseaudio libpulseaudio
+      ++ l.optional withDbus dbus.lib
+      ++ l.optional withSpeechd speechd
+      ++ l.optional withFontconfig fontconfig.lib
+      ++ l.optional withUdev udev;
 
       patches = [
         # Godot expects to find xfixes inside xi, but nix's pkg-config only
@@ -52,8 +71,8 @@ let
       sconsFlags = "platform=linuxbsd target=editor production=true";
       preConfigure = ''
         sconsFlags+=" ${
-          lib.concatStringsSep " "
-          (lib.mapAttrsToList (k: v: "${k}=${builtins.toJSON v}") options)
+          l.concatStringsSep " "
+          (l.mapAttrsToList (k: v: "${k}=${l.toJSON v}") options)
         }"
       '';
 
@@ -71,12 +90,11 @@ let
         cp icon.png "$out/share/icons/godot.png"
       '';
 
-      meta = with lib; {
+      meta = with l; {
         homepage = "https://godotengine.org";
         description = "Free and Open Source 2D and 3D game engine";
         license = licenses.mit;
         platforms = [ "i686-linux" "x86_64-linux" ];
-        maintainers = with maintainers; [ twey shiryel ];
       };
     };
 
@@ -92,4 +110,6 @@ let
     "${major}.${minor}.${patch}-${status}";
 
 in
-{ }
+{
+  inherit buildGodot4;
+}
