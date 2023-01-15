@@ -4,6 +4,8 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    environment:
+      name: cachix
     steps:
     - uses: actions/checkout@v1
     - uses: cachix/install-nix-action@v18
