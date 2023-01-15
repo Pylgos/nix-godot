@@ -36,7 +36,6 @@ let
 
       buildInputs = with nixpkgs; [
         scons
-        libGLU
       ]
       ++ runtimeDependencies
       # Necessary to make godot see fontconfig.lib and dbus.lib
@@ -53,6 +52,7 @@ let
         xorg.libXrandr
         xorg.libXext
         xorg.libXfixes
+        libGLU
       ]
       ++ l.optional withPulseaudio libpulseaudio
       ++ l.optional withDbus dbus.lib
