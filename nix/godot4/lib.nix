@@ -9,7 +9,7 @@ let
     , buildCache ? null
     , doCache ? false
     , cacheLimit ? 5000
-    , production ? false
+    , production ? true
     , withPulseaudio ? true
     , withDbus ? true
     , withSpeechd ? true
