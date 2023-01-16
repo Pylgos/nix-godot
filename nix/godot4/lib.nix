@@ -6,7 +6,7 @@ let
 
   buildGodot4 =
     { source
-    , withPulseaudio ? false
+    , withPulseaudio ? true
     , withDbus ? true
     , withSpeechd ? false
     , withFontconfig ? true
