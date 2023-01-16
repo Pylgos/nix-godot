@@ -6,6 +6,8 @@ let
 
   buildGodot4 =
     { source
+    , cache ? null
+    , saveCache ? true
     , withPulseaudio ? true
     , withDbus ? true
     , withSpeechd ? false
@@ -22,83 +24,98 @@ let
         udev = withUdev; # Use udev for gamepad connection callbacks
         touch = withTouch; # Enable touch events
       };
-    in
-    nixpkgs.stdenv.mkDerivation rec {
-      pname = "godot";
-      version = parseVersion source;
-      src = source;
+      useCache = cache != null;
 
-      nativeBuildInputs = with nixpkgs; [
-        pkg-config
-        autoPatchelfHook
-        installShellFiles
-      ];
+      self = nixpkgs.stdenv.mkDerivation rec {
+        pname = "godot";
+        version = parseVersion source;
+        src = source;
 
-      buildInputs = with nixpkgs; [
-        scons
-      ]
-      ++ runtimeDependencies
-      # Necessary to make godot see fontconfig.lib and dbus.lib
-      ++ l.optional withFontconfig fontconfig
-      ++ l.optional withDbus dbus;
+        outputs = [ "out" "man" ]
+          ++ (if saveCache then [ "cache" ] else [ ]);
 
-      runtimeDependencies = with nixpkgs; [
-        vulkan-loader
-        alsa-lib
-        xorg.libX11
-        xorg.libXcursor
-        xorg.libXinerama
-        xorg.libXi
-        xorg.libXrandr
-        xorg.libXext
-        xorg.libXfixes
-        libGLU
-      ]
-      ++ l.optional withPulseaudio libpulseaudio
-      ++ l.optional withDbus dbus.lib
-      ++ l.optional withSpeechd speechd
-      ++ l.optional withFontconfig fontconfig.lib
-      ++ l.optional withUdev udev;
+        nativeBuildInputs = with nixpkgs; [
+          pkg-config
+          autoPatchelfHook
+          installShellFiles
+        ];
+
+        buildInputs = with nixpkgs; [
+          scons
+        ]
+        ++ runtimeDependencies
+        # Necessary to make godot see fontconfig.lib and dbus.lib
+        ++ l.optional withFontconfig fontconfig
+        ++ l.optional withDbus dbus;
+
+        runtimeDependencies = with nixpkgs; [
+          vulkan-loader
+          alsa-lib
+          xorg.libX11
+          xorg.libXcursor
+          xorg.libXinerama
+          xorg.libXi
+          xorg.libXrandr
+          xorg.libXext
+          xorg.libXfixes
+          libGLU
+        ]
+        ++ l.optional withPulseaudio libpulseaudio
+        ++ l.optional withDbus dbus.lib
+        ++ l.optional withSpeechd speechd
+        ++ l.optional withFontconfig fontconfig.lib
+        ++ l.optional withUdev udev;
 
 
-      postPatch = ''
-        substituteInPlace ./platform/linuxbsd/detect.py \
-          --replace '        env.ParseConfig("pkg-config xi --cflags")' \
-                    '        env.ParseConfig("pkg-config xi --cflags")${"\n"}        env.ParseConfig("pkg-config xfixes --cflags")' \
-          --replace '--cflags"' '--cflags --libs"'
-      '';
+        postPatch = ''
+          substituteInPlace ./platform/linuxbsd/detect.py \
+            --replace '        env.ParseConfig("pkg-config xi --cflags")' \
+                      '        env.ParseConfig("pkg-config xi --cflags")${"\n"}        env.ParseConfig("pkg-config xfixes --cflags")' \
+            --replace '--cflags"' '--cflags --libs"'
+        '';
 
-      enableParallelBuilding = true;
+        enableParallelBuilding = true;
 
-      sconsFlags = "platform=linuxbsd target=editor production=true";
-      preConfigure = ''
-        sconsFlags+=" ${
-          l.concatStringsSep " "
-          (l.mapAttrsToList (k: v: "${k}=${l.toJSON v}") options)
-        }"
-      '';
+        sconsFlags = "platform=linuxbsd target=editor production=true";
+        preConfigure = ''
+          sconsFlags+=" ${
+            l.concatStringsSep " "
+            (l.mapAttrsToList (k: v: "${k}=${l.toJSON v}") options)
+          }"
+        '' + (if (saveCache && useCache) then ''
+          export SCONS_CACHE=$cache
+          cp -a ${cache} $cache
+        '' else "") + (if (!saveCache && useCache) then ''
+          export SCONS_CACHE=${cache}
+        '' else "") + (if (saveCache && !useCache) then ''
+          export SCONS_CACHE=$cache
+        '' else "");
 
-      outputs = [ "out" "man" ];
+        installPhase = ''
+          mkdir -p "$out/bin"
+          cp bin/godot.* $out/bin/godot
+          installManPage misc/dist/linux/godot.6
+          mkdir -p "$out"/share/{applications,icons/hicolor/scalable/apps}
+          cp misc/dist/linux/org.godotengine.Godot.desktop "$out/share/applications/"
+          substituteInPlace "$out/share/applications/org.godotengine.Godot.desktop" \
+            --replace "Exec=godot" "Exec=$out/bin/godot"
+          cp icon.svg "$out/share/icons/hicolor/scalable/apps/godot.svg"
+          cp icon.png "$out/share/icons/godot.png"
+        '';
 
-      installPhase = ''
-        mkdir -p "$out/bin"
-        cp bin/godot.* $out/bin/godot
-        installManPage misc/dist/linux/godot.6
-        mkdir -p "$out"/share/{applications,icons/hicolor/scalable/apps}
-        cp misc/dist/linux/org.godotengine.Godot.desktop "$out/share/applications/"
-        substituteInPlace "$out/share/applications/org.godotengine.Godot.desktop" \
-          --replace "Exec=godot" "Exec=$out/bin/godot"
-        cp icon.svg "$out/share/icons/hicolor/scalable/apps/godot.svg"
-        cp icon.png "$out/share/icons/godot.png"
-      '';
+        passthru = {
+          buildIncremental = args: buildGodot4 (args // { cache = self.cache; });
+        };
 
-      meta = with l; {
-        homepage = "https://godotengine.org";
-        description = "Free and Open Source 2D and 3D game engine";
-        license = licenses.mit;
-        platforms = [ "i686-linux" "x86_64-linux" ];
+        meta = with l; {
+          homepage = "https://godotengine.org";
+          description = "Free and Open Source 2D and 3D game engine";
+          license = licenses.mit;
+          platforms = [ "i686-linux" "x86_64-linux" ];
+        };
       };
-    };
+    in
+    self;
 
   parseVersion = source:
     let
