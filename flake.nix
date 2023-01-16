@@ -28,7 +28,7 @@
     #  - but can use anything that produces flake outputs (e.g. flake-parts or flake-utils)
     # 5. Run: nix run .
     {
-      packages = std.harvest self [ "godot4" "packages" ];
+      packages = std.harvest self [ "godot" "packages" ];
     };
 }
 
