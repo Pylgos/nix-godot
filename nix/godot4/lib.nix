@@ -5,16 +5,18 @@ let
   l = nixpkgs.lib // builtins;
 
   buildGodot4 =
-    { source
-    , cache ? null
-    , saveCache ? true
+    { src
+    , buildCache ? null
+    , doCache ? false
+    , cacheLimit ? 5000
+    , production ? false
     , withPulseaudio ? true
     , withDbus ? true
-    , withSpeechd ? false
+    , withSpeechd ? true
     , withFontconfig ? true
     , withUdev ? true
     , withTouch ? true
-    }:
+    } @ args:
     let
       options = {
         pulseaudio = withPulseaudio;
@@ -24,15 +26,14 @@ let
         udev = withUdev; # Use udev for gamepad connection callbacks
         touch = withTouch; # Enable touch events
       };
-      useCache = cache != null;
+      useCache = buildCache != null;
 
-      self = nixpkgs.stdenv.mkDerivation rec {
+      self = nixpkgs.stdenv.mkDerivation (rec {
         pname = "godot";
-        version = parseVersion source;
-        src = source;
+        version = parseVersion src;
+        inherit src;
 
-        outputs = [ "out" "man" ]
-          ++ (if saveCache then [ "cache" ] else [ ]);
+        outputs = [ "out" "man" ] ++ l.optional doCache "buildCache";
 
         nativeBuildInputs = with nixpkgs; [
           pkg-config
@@ -59,6 +60,7 @@ let
           xorg.libXext
           xorg.libXfixes
           libGLU
+          libGL
         ]
         ++ l.optional withPulseaudio libpulseaudio
         ++ l.optional withDbus dbus.lib
@@ -70,26 +72,37 @@ let
         postPatch = ''
           substituteInPlace ./platform/linuxbsd/detect.py \
             --replace '        env.ParseConfig("pkg-config xi --cflags")' \
-                      '        env.ParseConfig("pkg-config xi --cflags")${"\n"}        env.ParseConfig("pkg-config xfixes --cflags")' \
-            --replace '--cflags"' '--cflags --libs"'
+                      '        env.ParseConfig("pkg-config xi --cflags")${"\n"}        env.ParseConfig("pkg-config xfixes --cflags")'
         '';
 
         enableParallelBuilding = true;
 
-        sconsFlags = "platform=linuxbsd target=editor production=true";
+        sconsFlags = "platform=linuxbsd target=editor production=${if production then "true" else "false"}"
+          + (if (!doCache && useCache) then " --cache-readonly" else "");
+
         preConfigure = ''
           sconsFlags+=" ${
             l.concatStringsSep " "
             (l.mapAttrsToList (k: v: "${k}=${l.toJSON v}") options)
           }"
-        '' + (if (saveCache && useCache) then ''
-          export SCONS_CACHE=$cache
-          cp -a ${cache} $cache
-        '' else "") + (if (!saveCache && useCache) then ''
-          export SCONS_CACHE=${cache}
-        '' else "") + (if (saveCache && !useCache) then ''
-          export SCONS_CACHE=$cache
-        '' else "");
+        '' + (
+          if (doCache && useCache) then
+            ''
+              cp -a ${buildCache} $buildCache
+              export SCONS_CACHE=$buildCache
+              export SCONS_CACHE_LIMIT=${cacheLimit}
+            ''
+          else if (!doCache && useCache) then
+            ''
+              export SCONS_CACHE=${buildCache}
+            ''
+          else if (doCache && !useCache) then
+            ''
+              export SCONS_CACHE=$buildCache
+              export SCONS_CACHE_LIMIT=${cacheLimit}
+            ''
+          else ""
+        );
 
         installPhase = ''
           mkdir -p "$out/bin"
@@ -104,16 +117,20 @@ let
         '';
 
         passthru = {
-          buildIncremental = args: buildGodot4 (args // { cache = self.cache; });
+          buildIncremental = newArgs:
+            let
+              cachedGodot = buildGodot4 (args // { doCache = true; });
+            in
+            buildGodot4 (newArgs // { buildCache = cachedGodot.buildCache; });
         };
 
-        meta = with l; {
+        meta = {
           homepage = "https://godotengine.org";
           description = "Free and Open Source 2D and 3D game engine";
-          license = licenses.mit;
+          license = l.licenses.mit;
           platforms = [ "i686-linux" "x86_64-linux" ];
         };
-      };
+      } // args);
     in
     self;
 
