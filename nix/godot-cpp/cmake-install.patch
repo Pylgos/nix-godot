@@ -1,0 +1,49 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 2350463..b4e643c 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -178,8 +178,9 @@ if (GODOT_CPP_SYSTEM_HEADERS)
+ endif ()
+ 
+ target_include_directories(${PROJECT_NAME} ${GODOT_CPP_SYSTEM_HEADERS_ATTRIBUTE} PUBLIC
+-	include
+-	${CMAKE_CURRENT_BINARY_DIR}/gen/include
++	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
++	$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/gen/include>
++	$<INSTALL_INTERFACE:include>
+ )
+ 
+ unset( GODOT_CPP_SYSTEM_HEADERS_ATTRIBUTE )
+@@ -187,7 +188,8 @@ unset( GODOT_CPP_SYSTEM_HEADERS_ATTRIBUTE )
+ # Put godot headers as SYSTEM PUBLIC to exclude warnings from irrelevant headers
+ target_include_directories(${PROJECT_NAME}
+ 	SYSTEM PUBLIC
+-	${GODOT_GDEXTENSION_DIR}
++	$<BUILD_INTERFACE:${GODOT_GDEXTENSION_DIR}>
++	$<INSTALL_INTERFACE:include/gdextension>
+ )
+ 
+ # Add the compile flags
+@@ -208,11 +210,15 @@ else()
+ 	set(OUTPUT_NAME "godot-cpp.${SYSTEM_NAME}.${BUILD_TYPE}.${BITS}")
+ endif()
+ 
+-set_target_properties(${PROJECT_NAME}
+-	PROPERTIES
+-		CXX_EXTENSIONS OFF
+-		ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+-		LIBRARY_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+-		RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+-		OUTPUT_NAME "${OUTPUT_NAME}"
++install(TARGETS ${PROJECT_NAME}
++	EXPORT ${PROJECT_NAME}-export
++	LIBRARY DESTINATION lib
++	ARCHIVE DESTINATION lib
++	PUBLIC_HEADER DESTINATION include
+ )
++
++install(EXPORT ${PROJECT_NAME}-export
++	FILE ${PROJECT_NAME}-config.cmake
++	DESTINATION share/cmake/foo/
++	EXPORT_LINK_INTERFACE_LIBRARIES
++) 
