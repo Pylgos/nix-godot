@@ -4,6 +4,16 @@ let
   nixpkgs = inputs.nixpkgs;
   l = nixpkgs.lib // builtins;
 
+  buildGodotHeaders = godot:
+    let in
+    nixpkgs.runCommand "godot-headers" {
+      inherit godot;
+    } ''
+      mkdir -p "$out"
+      cd "$out"
+      HOME=/tmp "$godot/bin/godot" --dump-extension-api --dump-gdextension-interface --display-driver headless
+    '';
+
   buildGodot4 =
     { src
     , buildCache ? null
@@ -116,12 +126,15 @@ let
           cp icon.png "$out/share/icons/godot.png"
         '';
 
-        passthru = {
+        passthru = rec {
           buildIncremental = newArgs:
             let
               cachedGodot = buildGodot4 (args // { doCache = true; });
             in
             buildGodot4 (newArgs // { buildCache = cachedGodot.buildCache; });
+          
+          godot-headers = buildGodotHeaders self;
+          godot-cpp = inputs.self.cells.godot-cpp.lib.buildGodotCpp godot-headers;
         };
 
         meta = {

@@ -80,6 +80,22 @@
         "type": "github"
       }
     },
+    "godot-cpp-source": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1674931384,
+        "narHash": "sha256-cNFW0sqE1zHSQdJr/GVHuinotd4snLugasNIg7CvyKk=",
+        "owner": "godotengine",
+        "repo": "godot-cpp",
+        "rev": "0f3a0913f100dcd988b538582431d064f46c4e17",
+        "type": "github"
+      },
+      "original": {
+        "owner": "godotengine",
+        "repo": "godot-cpp",
+        "type": "github"
+      }
+    },
     "godot-master-source": {
       "flake": false,
       "locked": {
@@ -204,6 +220,7 @@
     },
     "root": {
       "inputs": {
+        "godot-cpp-source": "godot-cpp-source",
         "godot-master-source": "godot-master-source",
         "nixpkgs": "nixpkgs",
         "std": "std"
