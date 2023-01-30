@@ -22,7 +22,7 @@ let
     , production ? true
     , withPulseaudio ? true
     , withDbus ? true
-    , withSpeechd ? true
+    , withSpeechd ? false
     , withFontconfig ? true
     , withUdev ? true
     , withTouch ? true
@@ -134,7 +134,7 @@ let
             buildGodot4 (newArgs // { buildCache = cachedGodot.buildCache; });
           
           godot-headers = buildGodotHeaders self;
-          godot-cpp = inputs.self.cells.godot-cpp.lib.buildGodotCpp godot-headers;
+          godot-cpp = inputs.cells.godot-cpp.lib.buildGodotCpp godot-headers;
         };
 
         meta = {

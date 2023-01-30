@@ -6,10 +6,13 @@ in
 {
   buildGodotCpp = godot-headers:
     let in
-    nixpkgs.mkDerivation {
+    nixpkgs.stdenv.mkDerivation {
       pname = "godot-cpp";
       version = "idk";
       src = inputs.godot-cpp-source;
-      nativeBuildInputs = [ nixpkgs.cmake ];
+      nativeBuildInputs = with nixpkgs; [
+        cmake
+        python3
+      ];
     };
 }
