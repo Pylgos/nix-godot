@@ -158,11 +158,29 @@ let
     "${major}.${minor}.${patch}-${status}";
 
   mkProjectFor = godot:
-    { nativeBuildInputs ? []
+    { nativeBuildInputs ? [ ]
+    , preConfigure ? ""
+    , addons ? [ ]
     , ...
     } @ args:
+    let
+      addons-paths = nixpkgs.buildEnv {
+        name = "godot-nix-addons-path";
+        paths = l.forEach addons (addon:
+          nixpkgs.buildEnv {
+            name = "${addon.name}-path";
+            paths = [ addon ];
+            extraPrefix = "/${addon.name}";
+          }
+        );
+      };
+    in
     nixpkgs.stdenv.mkDerivation (args // {
       nativeBuildInputs = nativeBuildInputs ++ [ godot ];
+
+      preConfigure = ''
+        ln -sf ${addons-paths} nix-addons
+      '' + preConfigure;
     });
 
 in
