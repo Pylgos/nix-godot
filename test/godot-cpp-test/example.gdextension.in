@@ -1,0 +1,7 @@
+[configuration]
+
+entry_symbol = "example_library_init"
+
+[libraries]
+
+${SYSTEM_NAME}.${BUILD_TYPE}.${CMAKE_SYSTEM_PROCESSOR} = "${CMAKE_INSTALL_PREFIX}/lib/${CMAKE_SHARED_LIBRARY_PREFIX}gdexample${CMAKE_SHARED_LIBRARY_SUFFIX}"
