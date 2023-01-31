@@ -1,5 +1,5 @@
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index 2350463..b4e643c 100644
+index 2350463..7aa3098 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
 @@ -178,8 +178,9 @@ if (GODOT_CPP_SYSTEM_HEADERS)
@@ -24,7 +24,7 @@ index 2350463..b4e643c 100644
  )
  
  # Add the compile flags
-@@ -208,11 +210,15 @@ else()
+@@ -208,11 +210,27 @@ else()
  	set(OUTPUT_NAME "godot-cpp.${SYSTEM_NAME}.${BUILD_TYPE}.${BITS}")
  endif()
  
@@ -44,6 +44,18 @@ index 2350463..b4e643c 100644
 +
 +install(EXPORT ${PROJECT_NAME}-export
 +	FILE ${PROJECT_NAME}-config.cmake
-+	DESTINATION share/cmake/foo/
++	DESTINATION share/cmake/${PROJECT_NAME}/
 +	EXPORT_LINK_INTERFACE_LIBRARIES
 +) 
++
++install(DIRECTORY
++	${CMAKE_CURRENT_SOURCE_DIR}/include/
++	${CMAKE_CURRENT_BINARY_DIR}/gen/include/
++	DESTINATION include
++)
++
++install(FILES
++	${GODOT_GDEXTENSION_DIR}/gdextension_interface.h
++	DESTINATION include/gdextension
++)
++

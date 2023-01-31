@@ -10,9 +10,12 @@ in
 
   test-extension = nixpkgs.stdenv.mkDerivation {
     name = "test-extension";
-    src = ../test;
+    src = inputs.self + /test;
     cmakeFlags = [ "-GNinja" ];
     nativeBuildInputs = [ nixpkgs.cmake nixpkgs.ninja ];
     buildInputs = [ cell.packages.godot-master.godot-cpp ];
+    preConfigure = ''
+      env
+    '';
   };
 }

@@ -16,6 +16,8 @@ let
 
   buildGodot4 =
     { src
+    , precision ? "single"
+    , target ? "editor"
     , buildCache ? null
     , doCache ? false
     , cacheLimit ? 5000
@@ -35,6 +37,10 @@ let
         fontconfig = withFontconfig; # Use fontconfig for system fonts support
         udev = withUdev; # Use udev for gamepad connection callbacks
         touch = withTouch; # Enable touch events
+        target = "editor";
+        platform = "linuxbsd";
+        production = if production then "true" else "false";
+        precision = precision;
       };
       useCache = buildCache != null;
 
@@ -55,7 +61,6 @@ let
           scons
         ]
         ++ runtimeDependencies
-        # Necessary to make godot see fontconfig.lib and dbus.lib
         ++ l.optional withFontconfig fontconfig
         ++ l.optional withDbus dbus;
 
@@ -79,16 +84,15 @@ let
         ++ l.optional withUdev udev;
 
 
-        postPatch = ''
-          substituteInPlace ./platform/linuxbsd/detect.py \
-            --replace '        env.ParseConfig("pkg-config xi --cflags")' \
-                      '        env.ParseConfig("pkg-config xi --cflags")${"\n"}        env.ParseConfig("pkg-config xfixes --cflags")'
-        '';
+        # postPatch = ''
+        #   substituteInPlace ./platform/linuxbsd/detect.py \
+        #     --replace '        env.ParseConfig("pkg-config xi --cflags")' \
+        #               '        env.ParseConfig("pkg-config xi --cflags")${"\n"}        env.ParseConfig("pkg-config xfixes --cflags")'
+        # '';
 
         enableParallelBuilding = true;
 
-        sconsFlags = "platform=linuxbsd target=editor production=${if production then "true" else "false"}"
-          + (if (!doCache && useCache) then " --cache-readonly" else "");
+        sconsFlags = if (!doCache && useCache) then " --cache-readonly" else "";
 
         preConfigure = ''
           sconsFlags+=" ${
