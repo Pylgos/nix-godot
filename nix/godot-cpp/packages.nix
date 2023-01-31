@@ -3,11 +3,11 @@ let
   inherit (inputs) std nixpkgs;
 in
 {
-  demo-extension = nixpkgs.callPackage
+  demo-extension = nixpkgs.callPackage (
     { stdenv
     , cmake
     , ninja
-    , godot-cpp ? inputs.cells.godot.packages.godot-master.godot-cpp
+    , godot-cpp
     }:
     nixpkgs.stdenv.mkDerivation {
     name = "test-extension";
@@ -23,5 +23,5 @@ in
     cmakeFlags = [ "-GNinja" ];
     nativeBuildInputs = [ cmake ninja ];
     buildInputs = [ godot-cpp ];
-  };
+  }) { godot-cpp = inputs.cells.godot.packages.godot-master.godot-cpp; };
 }

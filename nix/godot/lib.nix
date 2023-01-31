@@ -179,7 +179,7 @@ let
       nativeBuildInputs = nativeBuildInputs ++ [ godot ];
 
       preConfigure = ''
-        ln -sf ${addons-paths} nix-addons
+        ln -snf ${addons-paths} nix-addons
       '' + preConfigure;
     });
 
