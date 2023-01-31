@@ -1,4 +1,9 @@
 {
+  nixConfig ={
+    extra-trusted-public-keys = "godot.cachix.org-1:kPibbZSZOQb/qoWUODS4M4BCdl/Ka4MHuxiEKG0E0/M=";
+    extra-substituters = "https://godot.cachix.org";
+  };
+
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/22.11";
     std.url = "github:divnix/std";
