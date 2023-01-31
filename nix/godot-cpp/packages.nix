@@ -1,5 +1,6 @@
 { inputs, cell }:
 let
+  inherit (inputs) nixpkgs;
 in
 {
   godot-master-test-extension = nixpkgs.stdenv.mkDerivation {
