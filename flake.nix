@@ -18,7 +18,7 @@
       ];
     }
     {
-      packages = std.harvest self [ "godot" "packages" ];
+      packages = std.harvest self [ "outputs" "packages" ];
     };
 }
 

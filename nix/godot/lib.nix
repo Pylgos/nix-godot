@@ -6,9 +6,10 @@ let
 
   buildGodotHeaders = godot:
     let in
-    nixpkgs.runCommand "godot-headers" {
-      inherit godot;
-    } ''
+    nixpkgs.runCommand "godot-headers"
+      {
+        inherit godot;
+      } ''
       mkdir -p "$out"
       cd "$out"
       HOME=/tmp "$godot/bin/godot" --dump-extension-api --dump-gdextension-interface --display-driver headless
@@ -83,13 +84,6 @@ let
         ++ l.optional withFontconfig fontconfig.lib
         ++ l.optional withUdev udev;
 
-
-        # postPatch = ''
-        #   substituteInPlace ./platform/linuxbsd/detect.py \
-        #     --replace '        env.ParseConfig("pkg-config xi --cflags")' \
-        #               '        env.ParseConfig("pkg-config xi --cflags")${"\n"}        env.ParseConfig("pkg-config xfixes --cflags")'
-        # '';
-
         enableParallelBuilding = true;
 
         sconsFlags = if (!doCache && useCache) then " --cache-readonly" else "";
@@ -136,9 +130,10 @@ let
               cachedGodot = buildGodot4 (args // { doCache = true; });
             in
             buildGodot4 (newArgs // { buildCache = cachedGodot.buildCache; });
-          
+
           godot-headers = buildGodotHeaders self;
           godot-cpp = inputs.cells.godot-cpp.lib.buildGodotCpp godot-headers;
+          mkProject = mkProjectFor self;
         };
 
         meta = {
@@ -161,6 +156,14 @@ let
       status = l.fromJSON (f "status");
     in
     "${major}.${minor}.${patch}-${status}";
+
+  mkProjectFor = godot:
+    { nativeBuildInputs ? []
+    , ...
+    } @ args:
+    nixpkgs.stdenv.mkDerivation (args // {
+      nativeBuildInputs = nativeBuildInputs ++ [ godot ];
+    });
 
 in
 {
