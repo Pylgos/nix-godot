@@ -1,8 +1,8 @@
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index 2350463..7aa3098 100644
+index 2350463..7fd66c9 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
-@@ -178,8 +178,9 @@ if (GODOT_CPP_SYSTEM_HEADERS)
+@@ -178,18 +178,14 @@ if (GODOT_CPP_SYSTEM_HEADERS)
  endif ()
  
  target_include_directories(${PROJECT_NAME} ${GODOT_CPP_SYSTEM_HEADERS_ATTRIBUTE} PUBLIC
@@ -10,21 +10,22 @@ index 2350463..7aa3098 100644
 -	${CMAKE_CURRENT_BINARY_DIR}/gen/include
 +	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
 +	$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/gen/include>
++	$<BUILD_INTERFACE:${GODOT_GDEXTENSION_DIR}>
 +	$<INSTALL_INTERFACE:include>
  )
  
  unset( GODOT_CPP_SYSTEM_HEADERS_ATTRIBUTE )
-@@ -187,7 +188,8 @@ unset( GODOT_CPP_SYSTEM_HEADERS_ATTRIBUTE )
- # Put godot headers as SYSTEM PUBLIC to exclude warnings from irrelevant headers
- target_include_directories(${PROJECT_NAME}
- 	SYSTEM PUBLIC
--	${GODOT_GDEXTENSION_DIR}
-+	$<BUILD_INTERFACE:${GODOT_GDEXTENSION_DIR}>
-+	$<INSTALL_INTERFACE:include/gdextension>
- )
  
+-# Put godot headers as SYSTEM PUBLIC to exclude warnings from irrelevant headers
+-target_include_directories(${PROJECT_NAME}
+-	SYSTEM PUBLIC
+-	${GODOT_GDEXTENSION_DIR}
+-)
+-
  # Add the compile flags
-@@ -208,11 +210,27 @@ else()
+ set_property(TARGET ${PROJECT_NAME} APPEND_STRING PROPERTY COMPILE_FLAGS ${GODOT_COMPILE_FLAGS})
+ set_property(TARGET ${PROJECT_NAME} APPEND_STRING PROPERTY LINK_FLAGS ${GODOT_LINKER_FLAGS})
+@@ -208,11 +204,26 @@ else()
  	set(OUTPUT_NAME "godot-cpp.${SYSTEM_NAME}.${BUILD_TYPE}.${BITS}")
  endif()
  
@@ -40,7 +41,7 @@ index 2350463..7aa3098 100644
 +	LIBRARY DESTINATION lib
 +	ARCHIVE DESTINATION lib
 +	PUBLIC_HEADER DESTINATION include
- )
++)
 +
 +install(EXPORT ${PROJECT_NAME}-export
 +	FILE ${PROJECT_NAME}-config.cmake
@@ -56,6 +57,5 @@ index 2350463..7aa3098 100644
 +
 +install(FILES
 +	${GODOT_GDEXTENSION_DIR}/gdextension_interface.h
-+	DESTINATION include/gdextension
-+)
-+
++	DESTINATION include
+ )
