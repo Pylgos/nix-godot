@@ -6,7 +6,8 @@ in
 {
   buildGodotCpp = godot-headers:
     let
-      libName = "libgodot-cpp.linux.template_debug.x86_64.a";
+      libName = "godot-cpp.linux.template_debug.x86_64";
+      libName' = "lib${libName}.a";
       cFlags = "-DDEBUG_ENABLED -DDEBUG_METHODS_ENABLED -I${godot-headers}";
       pkgConfigFile = nixpkgs.substituteAll {
         src = ./godot-cpp.pc;
@@ -31,7 +32,7 @@ in
 
       installPhase = ''
         mkdir -p $out/lib
-        cp bin/${libName} $out/lib
+        cp bin/${libName'} $out/lib
         cp -r include $out
         cp -r gen/include $out
         mkdir -p $out/lib/pkgconfig

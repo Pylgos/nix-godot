@@ -3,5 +3,7 @@ libdir=${prefix}/lib
 includedir=${prefix}/include
 
 Name: godot-cpp
+Description: The godot-cpp library
+Version: 1.0.0
 Libs: -L${libdir} -l@libName@
 Cflags: -I${includedir} @cFlags@
