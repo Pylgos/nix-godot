@@ -5,26 +5,45 @@ let
 in
 {
   buildGodotCpp = godot-headers:
-    let in
+    let
+      libName = "libgodot-cpp.linux.template_debug.x86_64.a";
+      cFlags = "-DDEBUG_ENABLED -DDEBUG_METHODS_ENABLED -I${godot-headers}";
+      pkgConfigFile = nixpkgs.substituteAll {
+        src = ./godot-cpp.pc;
+        inherit libName godot-headers cFlags;
+      };
+    in
     nixpkgs.stdenv.mkDerivation {
       name = "godot-cpp";
 
       src = inputs.godot-cpp-source;
 
-      patches = [ ./cmake-install.patch ];
+      postPatch = ''
+        substituteInPlace ./SConstruct --replace \
+        'Return("env")' \
+        'env.PrependENVPath("PATH", os.getenv("PATH"))
+        Return("env")'
+      '';
 
-      cmakeFlags = [
-        "-DGODOT_GDEXTENSION_DIR=${godot-headers}"
-        "-GNinja"
+      sconsFlags = [
+        "gdextension_dir=${godot-headers}"
       ];
 
-      nativeBuildInputs = with nixpkgs; [
-        cmake
-        python3
-        ninja
+      installPhase = ''
+        mkdir -p $out/lib
+        cp bin/${libName} $out/lib
+        cp -r include $out
+        cp -r gen/include $out
+        mkdir -p $out/lib/pkgconfig
+        cp ${pkgConfigFile} $out/lib/pkgconfig/godot-cpp.pc
+      '';
+
+      buildInputs = with nixpkgs; [
+        scons
       ];
 
-      passthru = { };
+      passthru = {
+        inherit libName;
+      };
     };
-
 }

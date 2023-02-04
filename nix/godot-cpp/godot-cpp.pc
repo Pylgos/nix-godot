@@ -1,0 +1,7 @@
+prefix=${pcfiledir}/../..
+libdir=${prefix}/lib
+includedir=${prefix}/include
+
+Name: godot-cpp
+Libs: -L${libdir} -l@libName@
+Cflags: -I${includedir} @cFlags@
