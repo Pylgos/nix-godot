@@ -60,10 +60,7 @@ let
 
         buildInputs = with nixpkgs; [
           scons
-        ]
-        ++ runtimeDependencies
-        ++ l.optional withFontconfig fontconfig
-        ++ l.optional withDbus dbus;
+        ];
 
         runtimeDependencies = with nixpkgs; [
           vulkan-loader
@@ -75,12 +72,13 @@ let
           xorg.libXrandr
           xorg.libXext
           xorg.libXfixes
-          libGLU
           libGL
         ]
         ++ l.optional withPulseaudio libpulseaudio
+        ++ l.optional withDbus dbus
         ++ l.optional withDbus dbus.lib
         ++ l.optional withSpeechd speechd
+        ++ l.optional withFontconfig fontconfig
         ++ l.optional withFontconfig fontconfig.lib
         ++ l.optional withUdev udev;
 

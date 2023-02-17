@@ -8,7 +8,7 @@ in
     let
       libName = "godot-cpp.linux.template_debug.x86_64";
       libName' = "lib${libName}.a";
-      cFlags = "-DDEBUG_ENABLED -DDEBUG_METHODS_ENABLED -I${godot-headers}";
+      cFlags = "-DDEBUG_ENABLED -DDEBUG_METHODS_ENABLED";
       pkgConfigFile = nixpkgs.substituteAll {
         src = ./godot-cpp.pc;
         inherit libName godot-headers cFlags;
@@ -35,6 +35,7 @@ in
         cp bin/${libName'} $out/lib
         cp -r include $out
         cp -r gen/include $out
+        cp ${godot-headers}/gdextension_interface.h $out/include
         mkdir -p $out/lib/pkgconfig
         cp ${pkgConfigFile} $out/lib/pkgconfig/godot-cpp.pc
       '';
