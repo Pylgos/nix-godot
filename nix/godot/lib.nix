@@ -72,6 +72,7 @@ let
           xorg.libXrandr
           xorg.libXext
           xorg.libXfixes
+          libxkbcommon
           libGL
         ]
         ++ l.optional withPulseaudio libpulseaudio
