@@ -174,11 +174,11 @@
     "godot-master-source": {
       "flake": false,
       "locked": {
-        "lastModified": 1680689017,
-        "narHash": "sha256-RDR+sR2I9wzZXCQazMrfr0Mnk5F5c4lck0XYim8En28=",
+        "lastModified": 1680727668,
+        "narHash": "sha256-Obl1Z7jhikQyWOvO3hB6r1NZtRpPpWA2NniY1ByC/Ec=",
         "owner": "godotengine",
         "repo": "godot",
-        "rev": "44d539465acca7592e0c88748e231fe5f151da37",
+        "rev": "49a196277f86977d08cc10b6bb878427ae54a964",
         "type": "github"
       },
       "original": {
