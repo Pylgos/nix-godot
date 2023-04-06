@@ -29,6 +29,7 @@ let
     , withFontconfig ? true
     , withUdev ? true
     , withTouch ? true
+    , debugSymbols ? false
     } @ args:
     let
       options = {
@@ -42,6 +43,7 @@ let
         platform = "linuxbsd";
         production = if production then "true" else "false";
         precision = precision;
+        debugSymbols = if debugSymbols then "true" else "false";
       };
       useCache = buildCache != null;
 
@@ -49,6 +51,8 @@ let
         pname = "godot";
         version = parseVersion src;
         inherit src;
+
+        dontStrip = debugSymbols;
 
         outputs = [ "out" "man" ] ++ l.optional doCache "buildCache";
 

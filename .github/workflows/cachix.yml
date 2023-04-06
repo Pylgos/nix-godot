@@ -16,4 +16,5 @@ jobs:
         name: godot
         authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
     - run: nix build -L .#godot-master
+    - run: nix build -L .#godot-master-debug
     - run: nix build -L .#godot-master.godot-cpp

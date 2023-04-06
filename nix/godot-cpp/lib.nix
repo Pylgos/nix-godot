@@ -19,6 +19,8 @@ in
 
       src = inputs.godot-cpp-source;
 
+      dontStrip = true;
+
       postPatch = ''
         substituteInPlace ./SConstruct --replace \
         'Return("env")' \

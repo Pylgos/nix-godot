@@ -7,4 +7,5 @@ let
 in
 {
   godot-master = buildGodot4 { src = inputs.godot-master-source; };
+  godot-master-debug = buildGodot4 { src = inputs.godot-master-source; production = false; debugSymbols = true; };
 }
