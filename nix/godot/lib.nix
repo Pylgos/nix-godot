@@ -47,7 +47,7 @@ let
       };
       useCache = buildCache != null;
 
-      self = nixpkgs.stdenv.mkDerivation (rec {
+      self = (if debugSymbols then nixpkgs.stdenvAdapters.keepDebugInfo nixpkgs.stdenv else nixpkgs.stdenv).mkDerivation (rec {
         pname = "godot";
         version = parseVersion src;
         inherit src;
