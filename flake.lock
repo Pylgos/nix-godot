@@ -63,11 +63,11 @@
     "godot-cpp-source": {
       "flake": false,
       "locked": {
-        "lastModified": 1694809773,
-        "narHash": "sha256-OzKK2OsbttMJGd9Z8RwLavNeivCzNFxIXfX19wto2HI=",
+        "lastModified": 1696522031,
+        "narHash": "sha256-ycBHkOLlanmiA5TENxe3DrpOdRuVpd49kY0VuCgv76c=",
         "owner": "godotengine",
         "repo": "godot-cpp",
-        "rev": "73500966aef159076831efb6141a6b36e102d69e",
+        "rev": "ef2f63a00c5496cc325e8546acd743787e87a83d",
         "type": "github"
       },
       "original": {
@@ -79,11 +79,11 @@
     "godot-master-source": {
       "flake": false,
       "locked": {
-        "lastModified": 1694800128,
-        "narHash": "sha256-x4Z9yJBTchO44/Z+wmjYnkp3tIWnWxJ/jLE8n4riADM=",
+        "lastModified": 1696971124,
+        "narHash": "sha256-tKgG/EFyOQZnEf+3Zb6Ak88D0FQqPbokYbrzKQAtaiA=",
         "owner": "godotengine",
         "repo": "godot",
-        "rev": "5f1e56ff26be4070496aa51095b9ac2f2b4f4ed8",
+        "rev": "918f0463540bc8fb70bc9d7843636b0c1143c4cf",
         "type": "github"
       },
       "original": {
@@ -276,11 +276,11 @@
         "yants": "yants"
       },
       "locked": {
-        "lastModified": 1694820630,
-        "narHash": "sha256-Z26jnTByZZHnPxYZHc85fdYU22U95qxoaWWb14f+220=",
+        "lastModified": 1695893106,
+        "narHash": "sha256-sUHZO7v65zT8HyQ6gZqp18HX8PgTRIhtX1xSg+/I+7M=",
         "owner": "divnix",
         "repo": "std",
-        "rev": "a78e6e88749aa794df4a44aeb2a6508976efdd72",
+        "rev": "c5d97ddcd1bd33e87a7271ead97464f20f447058",
         "type": "github"
       },
       "original": {
